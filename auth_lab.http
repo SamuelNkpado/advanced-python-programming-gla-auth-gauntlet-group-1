@@ -13,6 +13,25 @@
 #       Authorization: Basic <base64(username:password)> header.
 #       Tip: REST Client supports  Authorization: Basic admin admin123  directly.
 
+### Phase 1 — Synthesis Challenge: Attacker replay
+# An attacker who intercepts "Basic YWRtaW46YWRtaW4xMjM=" off an unencrypted
+# connection can replay this exact header without ever knowing it decodes to
+# admin:admin123. Base64 is reversible encoding, not encryption — the server
+# just decodes and string-matches against the DB, so the encoded string IS
+# the credential in practice. This is only safe over HTTPS.
+### Phase 1 — Basic Auth (authenticated)
+GET http://127.0.0.1:8000/api/basic/
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+
+### Phase 1 — Basic Auth (unauthenticated)
+GET http://127.0.0.1:8000/api/basic/ HTTP/1.1
+
+###
+
+
+
+
 
 ### ═══════════════════════════════════════════════════════════════════════════
 ### PHASE 3 — Token Authentication (Opaque)
@@ -20,7 +39,7 @@
 # TODO: Generate a DRF token for the admin user first (see lab README).
 # TODO: Find the Token Auth endpoint in api/urls.py.
 # TODO: Write a GET request that sends the token using the
-#       Authorization: Token <your-token> header.
+#       Authorization: Token 89e30f01d1c7daa98003c9b1a347d9fdd8ef6750 header.
 
 
 ### ═══════════════════════════════════════════════════════════════════════════
@@ -34,3 +53,6 @@
 #       Authorization: Bearer {{accessToken}}
 # TODO: (Bonus) Write a POST request to refresh the access token using
 #       the refresh token from the login response.
+
+
+

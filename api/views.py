@@ -7,7 +7,7 @@
 # | Method            | Stateful?  | DB Lookup?| Credentials sent  | Safe on  |
 # |                   |            |           | every request?    | HTTP?    |
 # +-------------------+------------+-----------+-------------------+----------+
-# | Basic Auth        |            |           |                   |          |
+# | Basic Auth        |  No        |    Yes    |          Yes      |     No   |
 # | Session Auth      |            |           |                   |          |
 # | Opaque Token Auth |            |           |                   |          |
 # | JWT               |            |           |                   |          |
@@ -43,10 +43,17 @@ def basic_auth_view(request):
     # ─────────────────────────────────────────────────────────────────────────
 
     # Reporter — Phase 1 challenge answers:
+    
     # Q1 answer (header format for admin:admin123):
+    #   Basic YWRtaW46YWRtaW4xMjM= — decodes to "admin:admin123" (username:password, colon-separated).
     # Q2 answer (what happens without credentials):
+    #   401 Unauthorized. Body: {"detail": "Authentication credentials were not provided."}
+    #   DRF rejects the request before the view even runs — no "Incoming Header" line is printed,
+    #   confirming BasicAuthentication fails upstream of the view logic.
 
-    return Response({"message": "Phase 1 stub — Driver: complete the TODO above."})
+    auth_header = request.META.get("HTTP_AUTHORIZATION")
+    print(f"Incoming Header: {auth_header}")
+    return Response({"message": "Check your terminal!"})
 
 
 # ─────────────────────────────────────────────────────────────────────────────
