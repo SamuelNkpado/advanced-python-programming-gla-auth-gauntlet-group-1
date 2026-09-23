@@ -61,14 +61,31 @@ Authorization: Token 6d361a3d44e5e31dec9e6042c1ea995d907e9fc5
 ### ═══════════════════════════════════════════════════════════════════════════
 ### PHASE 4 — JSON Web Tokens (JWT)
 ### ═══════════════════════════════════════════════════════════════════════════
-# TODO: Find the JWT login endpoint in api/urls.py.
-# TODO: Write a POST request with a JSON body containing username and password.
-# After sending, copy the "access" value from the response and paste it below:
-#   @accessToken = <paste the access token here>
-# TODO: Write a GET request to the protected JWT endpoint using:
-#       Authorization: Bearer {{accessToken}}
-# TODO: (Bonus) Write a POST request to refresh the access token using
-#       the refresh token from the login response.
 
+### Phase 4 — JWT Login (obtain tokens)
+POST http://127.0.0.1:8000/api/jwt/login/ HTTP/1.1
+Content-Type: application/json
 
+{
+    "username": "admin",
+    "password": "admin123"
+}
 
+### Phase 4 — JWT Protected Request (valid token — expect 200 OK)
+GET http://127.0.0.1:8000/api/jwt/protected/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzkwMjAzNDYxLCJpYXQiOjE3OTAyMDE2NjEsImp0aSI6IjU1N2VkMDU0ZGI1NTQ0YjNhNWUyZTY0NWM0YTBjMDRjIiwidXNlcl9pZCI6IjEifQ.kEiUZ8G1BlMPNBmgpFE38aaWaKamxiQMdVXlPykmw1g
+
+### Phase 4 — Tampered JWT (user_id changed to "2" on jwt.io — expect 401 Unauthorized)
+# Payload segment changed: ...IjoiMSJ9... (user_id=1) → ...IjoiMiJ9... (user_id=2)
+# Signature segment is UNCHANGED — the server will reject it because the
+# signature no longer matches the new payload.
+GET http://127.0.0.1:8000/api/jwt/protected/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzkwMjAzNDYxLCJpYXQiOjE3OTAyMDE2NjEsImp0aSI6IjU1N2VkMDU0ZGI1NTQ0YjNhNWUyZTY0NWM0YTBjMDRjIiwidXNlcl9pZCI6IjIifQ.kEiUZ8G1BlMPNBmgpFE38aaWaKamxiQMdVXlPykmw1g
+
+### Phase 4 — Refresh Access Token (Bonus — expect 200 OK with new access token)
+POST http://127.0.0.1:8000/api/jwt/refresh/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc5MDI4ODM1NywiaWF0IjoxNzkwMjAxOTU3LCJqdGkiOiI1MWU2MTkzZTU5MTg0M2FiOTI2MzkxNGMwNzJjNzg3MyIsInVzZXJfaWQiOiIxIn0._BFCZpiR0CtiPt2rdi6r4LmiTKAJrYKtlkDlZxbwc24"
+}

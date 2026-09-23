@@ -10,7 +10,7 @@
 # | Basic Auth        |  No        |    Yes    |          Yes      |     No   |
 # | Session Auth      |  Yes       |    Yes    |  No (cookie only) |     No   |
 # | Opaque Token Auth |  No        |    Yes    |  No (token only)  |     No   |
-# | JWT               |            |           |                   |          |
+# | JWT               |  No        |    No     |          Yes      |     No   |
 # +-------------------+------------+-----------+-------------------+----------+
 #
 # ─────────────────────────────────────────────────────────────────────────────
@@ -128,7 +128,31 @@ def token_auth_view(request):
 def jwt_protected_view(request):
     # Reporter — Phase 4 challenge answers:
     # Q1 answer (fields found in the decoded payload):
-    # Q2 answer (what happens when the signature is tampered):
-    # Synthesis answer (JWT revocation challenge and workaround):
+    #   Decoding the access token on jwt.io reveals the payload:
+    #     token_type  -> "access"  (distinguishes this from a refresh token)
+    #     exp         -> Unix expiry timestamp; set to 30 minutes after issue
+    #                    by SIMPLE_JWT.ACCESS_TOKEN_LIFETIME in settings.py
+    #     iat         -> issued-at Unix timestamp
+    #     jti         -> unique token ID (used for revocation/blocklists)
+    #     user_id     -> the identifying piece of user data ("1" for admin);
+    #                    this is what tells the server WHICH user the token
+    #                    represents, all without any database query.
+    #
+    # Q2 answer (how the server validates the token without a DB lookup):
+    #   The third segment of the JWT is a signature — an HMAC-SHA256 hash of
+    #   the header + payload computed with the server's SECRET_KEY. On every
+    #   request, JWTAuthentication re-computes that hash and compares it to
+    #   the signature in the token. If they match, the payload is trustworthy
+    #   and no database query is needed; if they differ, the token is rejected.
+    #
+    # Synthesis answer (tampered JWT rejection):
+    #   After editing user_id from "1" to "2" on jwt.io and resending, the
+    #   server returned 401 Unauthorized with "Token is invalid". The payload
+    #   is still structurally valid JSON, but it no longer matches the
+    #   signature — the server recomputes the signature with its SECRET_KEY
+    #   over the modified header+payload and gets a different value, so
+    #   verification fails. This proves the signature is what makes a JWT
+    #   tamper-evident: without the SECRET_KEY an attacker cannot forge a
+    #   matching signature, so any change to the payload is detected.
 
     return Response({"message": "JWT authenticated.", "user": request.user.username})
