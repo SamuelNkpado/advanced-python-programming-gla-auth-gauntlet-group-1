@@ -30,3 +30,14 @@ build/
 # Environment variables
 .env
 .env.*
+
+# SQLite temp files (db.sqlite3 itself stays tracked — it ships the admin user)
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Windows
+Thumbs.db
+
+# Postman local exports / REST Client env overrides
+*.postman_environment.json

@@ -8,7 +8,7 @@
 # |                   |            |           | every request?    | HTTP?    |
 # +-------------------+------------+-----------+-------------------+----------+
 # | Basic Auth        |  No        |    Yes    |          Yes      |     No   |
-# | Session Auth      |            |           |                   |          |
+# | Session Auth      |  Yes       |    Yes    |  No (cookie only) |     No   |
 # | Opaque Token Auth |            |           |                   |          |
 # | JWT               |            |           |                   |          |
 # +-------------------+------------+-----------+-------------------+----------+
@@ -66,7 +66,27 @@ def basic_auth_view(request):
 def session_auth_view(request):
     # Reporter — Phase 2 challenge answers:
     # Q1 answer (effect of deleting the session cookie):
+    #   After deleting the `sessionid` cookie and refreshing /admin/, we are
+    #   redirected to /admin/login/ (302) — we are logged out. The cookie holds
+    #   no user data; it is only a random key pointing to a row in the server's
+    #   django_session table (which stores the _auth_user_id). With no cookie,
+    #   the browser sends no key, so the server cannot look up that row and
+    #   treats us as anonymous. The session row itself still exists in the DB
+    #   until it expires or the user logs out.
+    #   (This endpoint, /api/session/, likewise returns 403 without the cookie.)
     # Synthesis answer (how session fixation works):
+    #   Re-adding the copied `sessionid` value and refreshing logs us straight
+    #   back in as admin — no username or password needed — because the server
+    #   still has the matching session row and only checks that the cookie's
+    #   key exists in django_session. So an attacker only needs to steal the
+    #   cookie value (e.g. by sniffing plain HTTP, XSS, or a shared machine)
+    #   while the session is active; they "hijack" a session the real user
+    #   already authenticated. That is session hijacking. Defences: HTTPS +
+    #   Secure/HttpOnly cookies, short expiry, and logging out (which deletes
+    #   the server-side row and makes the stolen cookie useless).
+    #   (Related but different: session *fixation* is when the attacker plants
+    #   a known session ID on the victim before login; Django prevents it by
+    #   rotating the session key on login.)
 
     return Response({"message": "Session authenticated.", "user": request.user.username})
 
