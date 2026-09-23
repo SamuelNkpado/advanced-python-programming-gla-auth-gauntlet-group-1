@@ -41,11 +41,6 @@ GET http://127.0.0.1:8000/api/basic/ HTTP/1.1
 # REST Client/Postman don't share the browser's cookie jar, so a request with
 # no cookie is rejected (403):
 
-### Phase 2 — Session Auth (no cookie)
-GET http://127.0.0.1:8000/api/session/ HTTP/1.1
-
-###
-
 ### Phase 2 — Session Auth (replaying a copied sessionid = session hijacking)
 # Paste the sessionid value copied from the browser. The server only checks
 # that this key exists in django_session, so whoever holds it is "admin".
