@@ -53,10 +53,9 @@ Cookie: sessionid=<PASTE_SESSIONID_HERE>
 ### ═══════════════════════════════════════════════════════════════════════════
 ### PHASE 3 — Token Authentication (Opaque)
 ### ═══════════════════════════════════════════════════════════════════════════
-# TODO: Generate a DRF token for the admin user first (see lab README).
-# TODO: Find the Token Auth endpoint in api/urls.py.
-# TODO: Write a GET request that sends the token using the
-#       Authorization: Token 89e30f01d1c7daa98003c9b1a347d9fdd8ef6750 header.
+GET http://127.0.0.1:8000/api/token/ HTTP/1.1
+Authorization: Token 6d361a3d44e5e31dec9e6042c1ea995d907e9fc5
+
 
 
 ### ═══════════════════════════════════════════════════════════════════════════
