@@ -9,7 +9,7 @@
 # +-------------------+------------+-----------+-------------------+----------+
 # | Basic Auth        |  No        |    Yes    |          Yes      |     No   |
 # | Session Auth      |  Yes       |    Yes    |  No (cookie only) |     No   |
-# | Opaque Token Auth |            |           |                   |          |
+# | Opaque Token Auth |  No        |    Yes    |  No (token only)  |     No   |
 # | JWT               |            |           |                   |          |
 # +-------------------+------------+-----------+-------------------+----------+
 #
